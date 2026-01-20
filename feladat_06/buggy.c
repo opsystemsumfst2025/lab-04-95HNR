@@ -7,12 +7,21 @@
 void null_pointer_bug() {
     printf("\n--- 1. Hiba: NULL pointer dereference ---\n");
     
-    int* ptr = NULL;
+    // JAVITAS: Memoriat foglalunk a pointernek a NULL helyett
+    int* ptr = (int*)malloc(sizeof(int));
     
-    // HIBA: NULL pointerre probalsz irni
+    if (ptr == NULL) {
+        fprintf(stderr, "Memoriafoglalasi hiba\n");
+        return;
+    }
+    
+    // Most mar biztonsagosan irhatunk ra
     *ptr = 42;
     
-    printf("Ha ez kiir, akkor nem volt segfault (furcsa...)\n");
+    printf("A mutato altal tarolt ertek: %d\n", *ptr);
+    
+    // A foglalt memoriat fel kell szabaditani
+    free(ptr);
 }
 
 void array_overflow_bug() {
@@ -20,13 +29,13 @@ void array_overflow_bug() {
     
     int array[10];
     
-    // HIBA: A tomb 0-9 indexeket tartalmazza, nem 0-15!
-    for (int i = 0; i <= 15; i++) {
+    // JAVITAS: A ciklus csak a tomb valodi mereteig (0-9) fut
+    for (int i = 0; i < 10; i++) {
         array[i] = i * 10;
         printf("array[%d] = %d\n", i, array[i]);
     }
     
-    printf("Ha ide eljutott, akkor nem volt segfault (meg...)\n");
+    printf("Most mar nincs tulindexeles.\n");
 }
 
 void use_after_free_bug() {
@@ -49,36 +58,41 @@ void use_after_free_bug() {
     }
     printf("\n");
     
-    // Felszabaditjuk a memoriat
-    free(data);
-    printf("Memoria felszabaditva.\n");
-    
-    // HIBA: Mar felszabaditott memoriat hasznalunk!
-    printf("Megprobaljuk hasznalni a felszabaditott memoriat...\n");
+    // JAVITAS: A memoriat csak a hasznalat UTAN szabaditjuk fel
+    printf("Adatok modositasa...\n");
     for (int i = 0; i < 5; i++) {
-        data[i] = i + 200;  // Use after free!
+        data[i] = i + 200;  
     }
-    
-    printf("Ha ide eljutott, akkor nem volt segfault (szerencses vagy)\n");
+
+    printf("Uj adatok: ");
+    for (int i = 0; i < 5; i++) {
+        printf("%d ", data[i]);
+    }
+    printf("\n");
+
+    // Most mar felszabadithatjuk
+    free(data);
+    data = NULL; // Jo gyakorlat NULL-ra allitani
+    printf("Memoria felszabaditva.\n");
 }
 
 int main() {
     printf("Segmentation Fault Demonstracio\n");
     printf("================================\n");
-    printf("\nFuttasd GDB-vel: gdb ./feladat_06\n");
-    printf("Vagy Valgrind-dal: valgrind ./feladat_06\n");
+    printf("\nFuttasd GDB-vel: gdb ./f06\n");
+    printf("Vagy Valgrind-dal: valgrind ./f06\n");
     
-    // Kommenteld ki az egyiket, hogy kulon-kulon teszteld a hibakat
+    // Mindharom hiba ki lett javitva, igy most mar sorrendben lefutnak
     
-    // 1. hiba: NULL pointer
-    // null_pointer_bug();
+    // 1. hiba javítva
+    null_pointer_bug();
     
-    // 2. hiba: Tomb tulinexeles
+    // 2. hiba javítva
     array_overflow_bug();
     
-    // 3. hiba: Use after free
-    // use_after_free_bug();
+    // 3. hiba javítva
+    use_after_free_bug();
     
-    printf("\nProgram vege.\n");
+    printf("\nProgram vege hiba nelkul.\n");
     return 0;
 }

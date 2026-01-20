@@ -8,7 +8,7 @@ typedef struct {
     int age;
 } Person;
 
-// HIBA: Ez a fuggveny memoriat foglal, de sehol nem szabaditjuk fel
+// Ez a fuggveny memoriat foglal
 Person* create_person(const char* name, int age) {
     Person* p = (Person*)malloc(sizeof(Person));
     if (p == NULL) {
@@ -27,7 +27,7 @@ Person* create_person(const char* name, int age) {
     return p;
 }
 
-// HIBA: Ez a fuggveny is foglal, de nem szabadit fel
+// Ez a fuggveny is foglal
 char* create_greeting(const char* name) {
     char* greeting = (char*)malloc(100);
     if (greeting == NULL) {
@@ -54,18 +54,22 @@ int main() {
     // Letrehozunk egy udvozletet
     char* greeting = create_greeting(john->name);
     if (greeting == NULL) {
+        // Ha itt hiba van, a john-t meg fel kellene szabaditani!
+        free(john->name);
+        free(john);
         fprintf(stderr, "Hiba: nem sikerult udvozletet letrehozni\n");
         return 1;
     }
     
     printf("%s\n", greeting);
     
-    // HIBA: Itt kellene felszabaditani a memoriait!
-    // De nem tesszuk...
-    // A memoria "elveszett" - a program vegere sem szabadul fel
+    // JAVITAS: Itt szabaditjuk fel a memoriait!
+    // Fontos a sorrend: elobb a struktura belsejet, aztan magat a strukturat
+    free(greeting);    // A greeting felszabaditasa
+    free(john->name);  // A nev felszabaditasa a strukturán belul
+    free(john);        // Maga a Person struktura felszabaditasa
     
-    printf("\nProgram vege. (De a memoria meg mindig foglalt!)\n");
-    printf("Futtasd Valgrind-dal: make valgrind_04\n");
+    printf("\nProgram vege. (Most mar minden memoria felszabaditva!)\n");
     
     return 0;
 }

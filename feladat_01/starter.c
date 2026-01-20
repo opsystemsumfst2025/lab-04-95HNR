@@ -6,21 +6,25 @@
 int balance = 0;
 
 // TODO: Definiald a szalak szamat (10)
-#define NUM_THREADS ???
+#define NUM_THREADS 10
 
 // TODO: Definiald, hogy hanyszor noveljen minden szal (1000)
-#define INCREMENTS_PER_THREAD ???
+#define INCREMENTS_PER_THREAD 1000
 
 // A szal fuggveny, amit minden szal vegre fog hajtatni
 void* deposit_money(void* arg) {
     // TODO: Irj egy ciklust, ami INCREMENTS_PER_THREAD-szer fut
-    // TODO: Minden iteracioban noveld a balance valtozot egyel
+    for (int i = 0; i < INCREMENTS_PER_THREAD; i++) {
+        // TODO: Minden iteracioban noveld a balance valtozot egyel
+        balance++;
+    }
     
     return NULL;
 }
 
 int main() {
     // TODO: Hozz letre egy pthread_t tombot NUM_THREADS meretu elemmel
+    pthread_t threads[NUM_THREADS];
     
     printf("Kezdeti egyenleg: %d dollar\n", balance);
     printf("Inditas: %d penztaros, mindegyik %d dollar befizetesevel...\n", 
@@ -29,9 +33,15 @@ int main() {
     // TODO: Inditsd el a szalakat egy ciklussal
     // Hasznald a pthread_create fuggvenyt
     // pthread_create(&threads[i], NULL, deposit_money, NULL);
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_create(&threads[i], NULL, deposit_money, NULL);
+    }
     
-    // TODO: Vard meg, hogy minden szal befejeződjon
+    // TODO: Vard meg, hogy minden szal befejezodjon
     // Hasznald a pthread_join fuggvenyt
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
     
     printf("Vegso egyenleg: %d dollar\n", balance);
     printf("Vart egyenleg: %d dollar\n", NUM_THREADS * INCREMENTS_PER_THREAD);
